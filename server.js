@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs-extra");
 const pino = require("pino");
-const qrcode = require("qrcode"); // പുതിയതായി ചേർത്തത്
+const qrcode = require("qrcode"); 
 const { default: makeWASocket, useMultiFileAuthState, delay, DisconnectReason } = require("@whiskeysockets/baileys");
 
 const app = express();
@@ -29,13 +29,23 @@ app.get("/pair", async (req, res) => {
             logger: pino({ level: "silent" }),
             printQRInTerminal: false,
             auth: state,
-            browser: ["Mac OS", "Chrome", "1.0.0"] 
+            // 🚨 FIX 1: ബ്രൗസർ മാറ്റി, കൂടാതെ സിങ്ക് ഹിസ്റ്ററി ഓഫ് ആക്കി (Render ക്രാഷ് ആവാതിരിക്കാൻ)
+            browser: ["Ubuntu", "Chrome", "20.0.04"],
+            syncFullHistory: false
         });
 
         if (!sock.authState.creds.registered) {
-            await delay(1500);
-            const code = await sock.requestPairingCode(phone);
-            res.json({ code: code.match(/.{1,4}/g).join("-") }); 
+            // 🚨 FIX 2: വാട്സാപ്പുമായി കണക്ട് ആവാൻ 3 സെക്കൻഡ് ഡിലേ കൊടുക്കുന്നു
+            setTimeout(async () => {
+                try {
+                    let code = await sock.requestPairingCode(phone);
+                    code = code?.match(/.{1,4}/g)?.join("-") || code;
+                    if (!res.headersSent) res.json({ code: code }); 
+                } catch (err) {
+                    console.error("Pair code error:", err);
+                    if (!res.headersSent) res.json({ error: "Failed to generate code. Try again." });
+                }
+            }, 3000); 
         }
 
         sock.ev.on('connection.update', async (update) => {
@@ -50,6 +60,7 @@ app.get("/pair", async (req, res) => {
                 await sock.logout();
                 await sock.ws.close();
                 fs.removeSync(sessionFolder); 
+                console.log(`✅ Session complete for ${phone}`);
             }
             if (connection === 'close') {
                 let reason = lastDisconnect?.error?.output?.statusCode;
@@ -76,7 +87,8 @@ app.get("/qr", async (req, res) => {
             logger: pino({ level: "silent" }),
             printQRInTerminal: false,
             auth: state,
-            browser: ["Mac OS", "Chrome", "1.0.0"] 
+            browser: ["Ubuntu", "Chrome", "20.0.04"], // 🚨 QR നും ബ്രൗസർ മാറ്റി
+            syncFullHistory: false
         });
 
         let qrSent = false;
@@ -84,7 +96,6 @@ app.get("/qr", async (req, res) => {
         sock.ev.on('connection.update', async (update) => {
             const { connection, qr, lastDisconnect } = update;
 
-            // QR കോഡ് കിട്ടുമ്പോൾ അത് ഇമേജ് ആക്കി വെബ്സൈറ്റിലേക്ക് കൊടുക്കുന്നു
             if (qr && !qrSent) {
                 qrSent = true;
                 const qrBuffer = await qrcode.toBuffer(qr);
@@ -114,11 +125,11 @@ app.get("/qr", async (req, res) => {
         sock.ev.on('creds.update', saveCreds);
     } catch (err) {
         try { fs.removeSync(sessionFolder); } catch (e) {}
-        if (!res.headersSent) res.status(500).send("Error generating QR");
+        if (!res.headersSent) res.json({ error: "Service Unavailable. Try again later." });
     }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
