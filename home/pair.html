@@ -7,437 +7,353 @@
   <link rel="icon" href="favicons/QyfhhwM.png" type="image/png" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --cyan: #56f5ed;
-      --cyan-dim: rgba(86,245,237,0.12);
-      --cyan-mid: rgba(86,245,237,0.4);
-      --bg: #060608;
-      --surface: #0d0d10;
-      --border: rgba(86,245,237,0.15);
-      --text: #e8e8f0;
-      --muted: #555566;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-      overflow: hidden;
+    body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background: url("https://files.catbox.moe/22x0j5.jpeg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
-    /* ── canvas background ── */
-    #bg-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .7);
+        z-index: 0;
     }
 
-    /* ── center wrapper ── */
-    .scene {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px 16px;
+    .snow {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+            radial-gradient(white 2px, transparent 2px),
+            radial-gradient(white 2px, transparent 2px),
+            radial-gradient(white 1px, transparent 1px);
+        background-size:
+            200px 200px,
+            300px 300px,
+            150px 150px;
+        animation: snowFall 15s linear infinite;
+        opacity: .7;
+        z-index: 1;
     }
 
-    /* ── card ── */
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px 36px 36px;
-      position: relative;
-      box-shadow:
-        0 0 0 1px rgba(86,245,237,0.05),
-        0 24px 80px rgba(0,0,0,0.7),
-        0 0 60px rgba(86,245,237,0.06);
-      animation: cardIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+    @keyframes snowFall {
+        from { transform: translateY(-100px); }
+        to { transform: translateY(100vh); }
+    }
+
+    #particles-js {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+    }
+
+    .stars {
+        position: fixed;
+        inset: 0;
+        background-image: radial-gradient(white 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: starsMove 60s linear infinite;
+        opacity: .25;
+        z-index: 2;
+    }
+
+    @keyframes starsMove {
+        from { transform: translateY(0); }
+        to { transform: translateY(-100vh); }
+    }
+
+    .container {
+        position: relative;
+        z-index: 10;
+        width: 90%;
+        max-width: 450px;
+        padding: 35px;
+        border-radius: 25px;
+        background: rgba(0, 0, 0, .45);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, .15);
+        box-shadow: 0 0 30px #9333ea, 0 0 80px rgba(147, 51, 234, .5);
+        color: white;
+        text-align: center;
+        animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(28px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* top accent line */
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 10%; right: 10%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-      border-radius: 999px;
+        from { opacity: 0; transform: translateY(28px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     /* ── logo / header ── */
     .logo-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 32px;
-      animation: fadeUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 25px;
     }
 
     .logo-icon {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      background: var(--cyan-dim);
-      border: 1px solid var(--border);
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background: rgba(147, 51, 234, 0.2);
+        border: 1px solid rgba(255,255,255,0.15);
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        animation: float 3s ease-in-out infinite;
     }
 
-    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-icon svg { width: 20px; height: 20px; stroke: #fff; }
+
+    @keyframes float {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0); }
+    }
 
     .logo-text {
-      display: flex;
-      flex-direction: column;
+        display: flex;
+        flex-direction: column;
+        text-align: left;
     }
 
     .logo-text .brand {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      color: var(--cyan);
-      line-height: 1;
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 0.18em;
+        color: #fff;
+        text-shadow: 0 0 10px #9333ea;
     }
 
-    .logo-text .tagline {
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-top: 3px;
-      font-family: 'JetBrains Mono', monospace;
+    h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+        text-shadow: 0 0 10px #9333ea, 0 0 20px #9333ea;
+        font-family: 'Syne', sans-serif;
     }
 
-    .badge {
-      margin-left: auto;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      color: var(--cyan);
-      background: var(--cyan-dim);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 4px 8px;
-    }
-
-    /* ── heading ── */
-    .heading {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      line-height: 1.2;
-      margin-bottom: 6px;
-      animation: fadeUp 0.6s 0.18s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    .heading span { color: var(--cyan); }
-
-    .sub {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      margin-bottom: 28px;
-      animation: fadeUp 0.6s 0.24s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    /* ── field label ── */
-    .field-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      margin-bottom: 8px;
-      animation: fadeUp 0.6s 0.3s cubic-bezier(0.22,1,0.36,1) both;
+    .subtitle {
+        opacity: .8;
+        margin-bottom: 25px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
     }
 
     /* ── input group ── */
     .input-group {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      animation: fadeUp 0.6s 0.34s cubic-bezier(0.22,1,0.36,1) both;
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
     }
 
-    select, input[type='text'] {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      padding: 12px 14px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-      -webkit-appearance: none;
+    .input-group select, .input-group input {
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, .15);
+        outline: none;
+        border-radius: 15px;
+        color: white;
+        background: rgba(255, 255, 255, .08);
+        font-size: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        transition: 0.3s;
     }
 
-    select {
-      width: 90px;
-      flex-shrink: 0;
-      cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2356f5ed' opacity='.5'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      padding-right: 28px;
+    .input-group select:focus, .input-group input:focus {
+        border-color: #9333ea;
+        box-shadow: 0 0 10px rgba(147, 51, 234, 0.4);
     }
 
-    input[type='text'] {
-      flex: 1;
+    .input-group select {
+        width: 100px;
+        flex-shrink: 0;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ffffff' opacity='.8'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        padding-right: 30px;
     }
 
-    select:focus, input[type='text']:focus {
-      border-color: var(--cyan-mid);
-      background: rgba(86,245,237,0.05);
-      box-shadow: 0 0 0 3px rgba(86,245,237,0.08);
-    }
+    .input-group select option { background: #111; color: #fff; }
+
+    .input-group input { flex: 1; }
+    .input-group input::placeholder { color: rgba(255, 255, 255, .6); }
 
     /* ── button ── */
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      background: var(--cyan);
-      color: #060608;
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.15s, box-shadow 0.2s;
-      animation: fadeUp 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    button {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(90deg, #9333ea, #2563eb);
+        transition: .3s;
+        position: relative;
+        font-family: 'Syne', sans-serif;
     }
 
-    .btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0);
-      transition: background 0.2s;
+    button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px #9333ea, 0 0 40px #2563eb;
     }
 
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 32px rgba(86,245,237,0.3);
+    button.loading { pointer-events: none; color: transparent; }
+    
+    .spinner {
+        display: none;
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px; height: 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
     }
-
-    .btn:hover::after { background: rgba(255,255,255,0.08); }
-    .btn:active { transform: translateY(0); }
-
-    .btn.loading {
-      pointer-events: none;
-      color: transparent;
-    }
-
-    .btn.loading::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: inherit;
-      border-radius: inherit;
-    }
-
-    .btn .spinner {
-      display: none;
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 18px; height: 18px;
-      border: 2px solid rgba(0,0,0,0.2);
-      border-top-color: #060608;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    .btn.loading .spinner { display: block; }
-
-    @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+    button.loading .spinner { display: block; }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
     /* ── result ── */
-    .result-wrap {
-      margin-top: 20px;
-      animation: fadeUp 0.6s 0.46s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
     .result-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      background: var(--cyan-dim);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      min-height: 50px;
+        margin-top: 25px;
+        min-height: 80px;
+        padding: 15px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, .05);
+        border: 1px solid rgba(255, 255, 255, .1);
+        word-break: break-word;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        cursor: pointer;
+        transition: 0.3s;
     }
 
     .result-box:hover {
-      border-color: var(--cyan-mid);
-      background: rgba(86,245,237,0.15);
+        background: rgba(255, 255, 255, .1);
+        border-color: rgba(147, 51, 234, 0.5);
     }
 
     #result {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      color: var(--cyan);
-      flex: 1;
-      text-align: center;
-      word-break: break-all;
+        flex: 1;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: #fff;
+        text-shadow: 0 0 8px rgba(147, 51, 234, 0.8);
     }
 
-    #result.placeholder-text {
-      font-size: 11px;
-      font-weight: 400;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-    }
+    #result.placeholder-text { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: normal; text-shadow: none; }
+    #result.error-text { font-size: 13px; color: #ff6b6b; font-weight: bold; text-shadow: none; }
 
-    .copy-icon {
-      flex-shrink: 0;
-      opacity: 0.4;
-      transition: opacity 0.2s;
-    }
-
+    .copy-icon { flex-shrink: 0; opacity: 0.6; transition: 0.3s; }
     .result-box:hover .copy-icon { opacity: 1; }
-
+    
     .copy-hint {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 8px;
-    }
-
-    /* ── toast ── */
-    .toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #0d0d10;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--cyan);
-      letter-spacing: 0.06em;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s, transform 0.25s;
-      z-index: 100;
-      white-space: nowrap;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* ── error state ── */
-    #result.error-text {
-      font-size: 11px;
-      color: #ff6b6b;
-      font-weight: 500;
-      letter-spacing: 0.04em;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: rgba(255,255,255,0.5);
+        margin-top: 10px;
+        letter-spacing: 0.1em;
     }
 
     /* ── footer ── */
     .footer {
-      margin-top: 24px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      animation: fadeUp 0.6s 0.52s cubic-bezier(0.22,1,0.36,1) both;
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
-
     .footer-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--cyan);
-      opacity: 0.5;
-      animation: pulse 2s ease-in-out infinite;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #9333ea;
+        box-shadow: 0 0 8px #9333ea;
+        animation: pulse 2s ease-in-out infinite;
     }
-
     @keyframes pulse {
-      0%,100% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.3); }
+        0%,100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.3); }
     }
-
     .footer-text {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 0.08em;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: rgba(255,255,255,0.6);
+        letter-spacing: 0.08em;
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
+    /* ── toast ── */
+    .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #9333ea;
+        box-shadow: 0 0 15px rgba(147, 51, 234, 0.4);
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: #fff;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s, transform 0.3s;
+        z-index: 100;
     }
-
-    /* hidden session input */
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     #session { display: none; }
-
-    /* scrollbar for select dropdown on some browsers */
-    select option {
-      background: #1a1a1f;
-      color: var(--text);
-    }
   </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
+<div class="snow"></div>
+<div class="stars"></div>
+<div id="particles-js"></div>
 
-<div class="scene">
-  <div class="card">
-
-    <div class="logo-row">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#56f5ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="13 2 13 9 20 9"/>
-          <path d="M20 14v5a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2h7"/>
-          <line x1="9" y1="14" x2="15" y2="14"/>
-          <line x1="9" y1="17" x2="12" y2="17"/>
-        </svg>
-      </div>
-      <div class="logo-text">
-        <span class="brand">KIRA X MD</span>
-        <span class="tagline">whatsapp automation</span>
-      </div>
-      <div class="badge">v1.0</div>
+<div class="container">
+  <div class="logo-row">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="13 2 13 9 20 9"/>
+        <path d="M20 14v5a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2h7"/>
+        <line x1="9" y1="14" x2="15" y2="14"/>
+        <line x1="9" y1="17" x2="12" y2="17"/>
+      </svg>
     </div>
+    <div class="logo-text">
+      <span class="brand">KIRA X MD</span>
+    </div>
+  </div>
 
-    <div class="heading">Link your <span>Device</span></div>
-    <div class="sub">// enter phone number to receive pairing code</div>
+  <h1>Link Device</h1>
+  <div class="subtitle">// enter phone number to receive pairing code</div>
 
-    <div class="field-label">PHONE NUMBER</div>
-
-    <div class="input-group">
-      <select id="countryCode">
+  <div class="input-group">
+    <select id="countryCode">
         <option value="91">+91</option>
         <option value="1">+1</option>
         <option value="7">+7</option>
@@ -602,27 +518,24 @@
         <option value="993">+993</option>
         <option value="994">+994</option>
         <option value="996">+996</option>
-      </select>
-      <input type="text" id="mobileNumber" placeholder="7012984396" inputmode="numeric" />
-    </div>
-
-    <button class="btn" onclick="fetchData()">
-      <span class="btn-label">GET PAIRING CODE</span>
-      <span class="spinner"></span>
-    </button>
-
-    <div class="result-wrap">
-      <div class="result-box" onclick="copy()">
-        <div id="result" class="placeholder-text">awaiting request...</div>
-        <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#56f5ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-        </svg>
-      </div>
-      <div class="copy-hint">TAP CODE TO COPY</div>
-    </div>
-
-    <input id="session" type="text" readonly />
+    </select>
+    <input type="text" id="mobileNumber" placeholder="7012984396" inputmode="numeric" />
   </div>
+
+  <button class="btn" onclick="fetchData()">
+    <span class="btn-label">GET PAIRING CODE</span>
+    <span class="spinner"></span>
+  </button>
+
+  <div class="result-box" onclick="copy()">
+    <div id="result" class="placeholder-text">awaiting request...</div>
+    <svg class="copy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+    </svg>
+  </div>
+  <div class="copy-hint">TAP CODE TO COPY</div>
+
+  <input id="session" type="text" readonly />
 
   <div class="footer">
     <div class="footer-dot"></div>
@@ -634,74 +547,6 @@
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
 <script>
-  /* ── animated grid background ── */
-  (function () {
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-    let W, H, particles = [];
-
-    function resize() {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-    }
-
-    function initParticles() {
-      particles = Array.from({ length: 55 }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        r: Math.random() * 1.4 + 0.3,
-        a: Math.random() * 0.5 + 0.1,
-      }));
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-
-      // subtle grid
-      ctx.strokeStyle = 'rgba(86,245,237,0.03)';
-      ctx.lineWidth = 1;
-      const gs = 60;
-      for (let x = 0; x < W; x += gs) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-      }
-      for (let y = 0; y < H; y += gs) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-      }
-
-      // particles
-      particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(86,245,237,${p.a})`;
-        ctx.fill();
-      });
-
-      // connections
-      particles.forEach((a, i) => {
-        particles.slice(i + 1).forEach(b => {
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < 110) {
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `rgba(86,245,237,${0.06 * (1 - d / 110)})`;
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
-          }
-        });
-      });
-
-      requestAnimationFrame(draw);
-    }
-
-    window.addEventListener('resize', () => { resize(); initParticles(); });
-    resize(); initParticles(); draw();
-  })();
-
   /* ── fetch pairing code ── */
   function fetchData() {
     const cc = document.getElementById('countryCode').value;
