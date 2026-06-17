@@ -13,14 +13,12 @@ app.get("/", (req, res) => {
     res.send("KIRA SESSION GENERATOR ONLINE 🔥");
 });
 
-// --- Baileys Socket Configuration (RAM Optimized) ---
 function getOptimizedSocket(state) {
     return makeWASocket({
         logger: pino({ level: "silent" }),
         printQRInTerminal: false,
         auth: state,
         browser: ["Ubuntu", "Chrome", "20.0.04"],
-        // 🚨 നിർബന്ധമായും റാം സേവ് ചെയ്യാനുള്ള സെറ്റിങ്സ്
         syncFullHistory: false, 
         markOnlineOnConnect: false,
         generateHighQualityLinkPreview: false,
@@ -36,8 +34,8 @@ app.get("/pair", async (req, res) => {
     if (!phone) return res.json({ error: "Please provide a phone number!" });
     phone = phone.replace(/[^0-9]/g, '');
 
-    // 🚨 FIX 1: Hugging Face-ൽ ക്രാഷ് ആവാതിരിക്കാൻ ഫയലുകൾ /tmp/ ഫോൾഡറിലേക്ക് മാറ്റി
-    const sessionFolder = `/tmp/session_${phone}_${Date.now()}`;
+    // 🚨 ഒറിജിനൽ ഫോൾഡർ സ്ട്രക്ച്ചറിലേക്ക് തന്നെ മാറ്റി
+    const sessionFolder = `./temp_sessions/session_${phone}_${Date.now()}`;
     
     try {
         const { state, saveCreds } = await useMultiFileAuthState(sessionFolder);
@@ -54,8 +52,7 @@ app.get("/pair", async (req, res) => {
                     code = code?.match(/.{1,4}/g)?.join("-") || code;
                     if (!res.headersSent) res.json({ code: code }); 
                 } catch (err) {
-                    console.error("Pair code error:", err);
-                    if (!res.headersSent) res.json({ error: "Failed to generate code. Try again." });
+                    if (!res.headersSent) res.json({ error: "Failed to generate code." });
                 }
             }, 3000); 
         }
@@ -90,7 +87,7 @@ app.get("/pair", async (req, res) => {
         
     } catch (err) {
         try { fs.removeSync(sessionFolder); } catch (e) {}
-        if (!res.headersSent) res.json({ error: "Service Unavailable. Try again later." });
+        if (!res.headersSent) res.json({ error: "Service Unavailable." });
     }
 });
 
@@ -98,16 +95,13 @@ app.get("/pair", async (req, res) => {
 // 2. QR CODE ENGINE
 // ----------------------------------------
 app.get("/qr", async (req, res) => {
-    // 🚨 FIX 1: QR ഫയലുകളും /tmp/ ഫോൾഡറിലേക്ക് മാറ്റി
-    const sessionFolder = `/tmp/qr_${Date.now()}`;
+    const sessionFolder = `./temp_sessions/qr_${Date.now()}`;
     try {
         const { state, saveCreds } = await useMultiFileAuthState(sessionFolder);
         const sock = getOptimizedSocket(state);
         let qrSent = false;
 
-        sock.ev.on('messaging-history.set', () => {
-            console.log("🗑️ Blocked history sync for QR session to save RAM!");
-        });
+        sock.ev.on('messaging-history.set', () => {});
 
         sock.ev.on('connection.update', async (update) => {
             const { connection, qr, lastDisconnect } = update;
@@ -149,8 +143,8 @@ app.get("/qr", async (req, res) => {
     }
 });
 
-// 🚨 FIX 2: Hugging Face-ൽ പബ്ലിക് ആയി വർക്ക് ചെയ്യാൻ "0.0.0.0" ആഡ് ചെയ്തു
-const PORT = process.env.PORT || 7860;
-app.listen(PORT, "0.0.0.0", () => {
+// 🚨 Pterodactyl പാനലിന് വേണ്ടിയുള്ള പോർട്ട് കോൺഫിഗറേഷൻ
+const PORT = process.env.SERVER_PORT || process.env.PORT || 3000;
+app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 });
